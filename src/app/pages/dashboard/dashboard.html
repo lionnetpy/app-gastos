@@ -1,0 +1,99 @@
+<section class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Resumen del mes</h1>
+      <p class="text-sm text-slate-500">{{ mesLabel() }}</p>
+    </div>
+    <a routerLink="/historial" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+      Ver historial →
+    </a>
+  </div>
+
+  @if (cargando()) {
+    <div class="rounded-2xl bg-white p-10 text-center text-slate-500 shadow-sm">Cargando…</div>
+  } @else if (error()) {
+    <div class="rounded-2xl bg-rose-50 p-6 text-sm text-rose-700 shadow-sm">{{ error() }}</div>
+  } @else if (resumen(); as r) {
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-2xl bg-slate-900 p-6 text-white shadow-sm md:col-span-2">
+        <p class="text-sm text-slate-300">Saldo actual total</p>
+        <p class="mt-1 text-3xl font-bold tracking-tight"
+           [class.text-emerald-400]="saldoPositivo()"
+           [class.text-rose-400]="!saldoPositivo()">
+          {{ formatearMonto(r.saldoActual) }}
+        </p>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <a routerLink="/nuevo" [queryParams]="{ tipo: 'Salida' }"
+             class="rounded-xl bg-rose-500 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-rose-600">
+            Agregar gasto
+          </a>
+          <a routerLink="/nuevo" [queryParams]="{ tipo: 'Entrada' }"
+             class="rounded-xl bg-emerald-500 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-emerald-600">
+            Agregar ingreso
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <p class="text-sm text-slate-500">Gastado este mes</p>
+        <p class="mt-1 text-2xl font-bold text-rose-600">{{ formatearMonto(r.gastosMes) }}</p>
+      </div>
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <p class="text-sm text-slate-500">Ingresado este mes</p>
+        <p class="mt-1 text-2xl font-bold text-emerald-600">{{ formatearMonto(r.ingresosMes) }}</p>
+      </div>
+      <div class="rounded-2xl bg-white p-5 shadow-sm md:col-span-2">
+        <p class="text-sm text-slate-500">Saldo de meses anteriores (referencia)</p>
+        <p class="mt-1 text-2xl font-bold"
+           [class.text-emerald-600]="anteriorPositivo()"
+           [class.text-rose-600]="!anteriorPositivo()">
+          {{ formatearMonto(r.saldoAnterior) }}
+        </p>
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <h2 class="mb-3 font-semibold text-slate-900">Gastos por categoría</h2>
+        @if (desgloseSalida().length === 0) {
+          <p class="text-sm text-slate-500">Sin gastos este mes.</p>
+        } @else {
+          <ul class="space-y-3">
+            @for (c of desgloseSalida(); track trackCat(0, c)) {
+              <li>
+                <div class="flex items-baseline justify-between text-sm">
+                  <span class="text-slate-700">{{ c.categoria }}</span>
+                  <span class="font-semibold text-slate-900">{{ formatearMonto(c.monto) }}</span>
+                </div>
+                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                  <div class="h-full rounded-full bg-rose-400" [style.width.%]="c.porcentaje"></div>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <h2 class="mb-3 font-semibold text-slate-900">Ingresos por categoría</h2>
+        @if (desgloseEntrada().length === 0) {
+          <p class="text-sm text-slate-500">Sin ingresos este mes.</p>
+        } @else {
+          <ul class="space-y-3">
+            @for (c of desgloseEntrada(); track trackCat(0, c)) {
+              <li>
+                <div class="flex items-baseline justify-between text-sm">
+                  <span class="text-slate-700">{{ c.categoria }}</span>
+                  <span class="font-semibold text-slate-900">{{ formatearMonto(c.monto) }}</span>
+                </div>
+                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                  <div class="h-full rounded-full bg-emerald-400" [style.width.%]="c.porcentaje"></div>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+</section>

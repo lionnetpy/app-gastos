@@ -1,0 +1,83 @@
+<section class="mx-auto max-w-xl space-y-4">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">
+      {{ esEdicion() ? 'Editar movimiento' : 'Nuevo movimiento' }}
+    </h1>
+    <p class="text-sm text-slate-500">Registrá un ingreso o un gasto del mes.</p>
+  </div>
+
+  @if (exito()) {
+    <div class="rounded-2xl bg-emerald-50 p-4 text-center text-sm font-medium text-emerald-700">
+      ¡Guardado! Volviendo al inicio…
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="guardar()" class="space-y-4 rounded-2xl bg-white p-5 shadow-sm">
+      <div>
+        <span class="mb-1.5 block text-sm font-medium text-slate-700">Tipo</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" (click)="form.patchValue({ tipo: 'Salida' }); ajustarCategoria()"
+                  class="rounded-xl px-4 py-3 text-sm font-semibold transition"
+                  [class.bg-rose-500]="form.value.tipo === 'Salida'"
+                  [class.text-white]="form.value.tipo === 'Salida'"
+                  [class.bg-slate-100]="form.value.tipo !== 'Salida'"
+                  [class.text-slate-600]="form.value.tipo !== 'Salida'">
+            Gasto
+          </button>
+          <button type="button" (click)="form.patchValue({ tipo: 'Entrada' }); ajustarCategoria()"
+                  class="rounded-xl px-4 py-3 text-sm font-semibold transition"
+                  [class.bg-emerald-500]="form.value.tipo === 'Entrada'"
+                  [class.text-white]="form.value.tipo === 'Entrada'"
+                  [class.bg-slate-100]="form.value.tipo !== 'Entrada'"
+                  [class.text-slate-600]="form.value.tipo !== 'Entrada'">
+            Ingreso
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700" for="categoria">Categoría</label>
+        <select id="categoria" formControlName="categoria"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100">
+          <option value="" disabled>Elegí una categoría</option>
+          @for (c of categoriasFiltradas(); track c.rowNumber) {
+            <option [value]="c.nombre">{{ c.nombre }}</option>
+          }
+        </select>
+        @if (form.get('categoria')?.touched && form.get('categoria')?.invalid) {
+          <p class="mt-1 text-xs text-rose-600">Elegí una categoría.</p>
+        }
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700" for="monto">Monto</label>
+        <input id="monto" type="number" min="0.01" step="0.01" placeholder="0,00" formControlName="monto"
+               class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+        @if (form.get('monto')?.touched && form.get('monto')?.invalid) {
+          <p class="mt-1 text-xs text-rose-600">Ingresá un monto válido mayor a cero.</p>
+        }
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700" for="fecha">Fecha</label>
+        <input id="fecha" type="date" formControlName="fecha"
+               class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700" for="descripcion">Descripción (opcional)</label>
+        <input id="descripcion" type="text" maxlength="200" placeholder="Ej: supermercado, factura de luz…"
+               formControlName="descripcion"
+               class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+      </div>
+
+      @if (error()) {
+        <p class="rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{{ error() }}</p>
+      }
+
+      <button type="submit" [disabled]="guardando()"
+              class="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
+        {{ guardando() ? 'Guardando…' : esEdicion() ? 'Guardar cambios' : 'Guardar movimiento' }}
+      </button>
+    </form>
+  }
+</section>

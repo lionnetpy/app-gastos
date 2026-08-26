@@ -1,0 +1,76 @@
+<section class="mx-auto max-w-xl space-y-4">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Categorías</h1>
+    <p class="text-sm text-slate-500">Personalizá las categorías de tus gastos e ingresos.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-2">
+    <button type="button" (click)="tab.set('Salida')"
+            class="rounded-xl px-4 py-3 text-sm font-semibold transition"
+            [class.bg-slate-900]="tab() === 'Salida'"
+            [class.text-white]="tab() === 'Salida'"
+            [class.bg-white]="tab() !== 'Salida'"
+            [class.text-slate-600]="tab() !== 'Salida'">
+      Gastos
+    </button>
+    <button type="button" (click)="tab.set('Entrada')"
+            class="rounded-xl px-4 py-3 text-sm font-semibold transition"
+            [class.bg-slate-900]="tab() === 'Entrada'"
+            [class.text-white]="tab() === 'Entrada'"
+            [class.bg-white]="tab() !== 'Entrada'"
+            [class.text-slate-600]="tab() !== 'Entrada'">
+      Ingresos
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{{ error() }}</p>
+  }
+
+  <form (ngSubmit)="agregar()" class="flex gap-2 rounded-2xl bg-white p-4 shadow-sm">
+    <input type="text" [(ngModel)]="nuevoNombre" name="nuevoNombre" maxlength="40"
+           [placeholder]="tab() === 'Salida' ? 'Nueva categoría de gasto…' : 'Nueva categoría de ingreso…'"
+           class="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+    <button type="submit" [disabled]="trabajando() || !nuevoNombre().trim()"
+            class="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
+      Agregar
+    </button>
+  </form>
+
+  <ul class="space-y-2">
+    @for (c of categoriasActuales(); track c.rowNumber) {
+      <li class="flex items-center gap-2 rounded-2xl bg-white p-3 shadow-sm">
+        @if (editandoRow() === c.rowNumber) {
+          <input type="text" [(ngModel)]="editandoNombre" name="editandoNombre" maxlength="40"
+                 class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500" />
+          <button type="button" (click)="guardarEdicion(c)" [disabled]="trabajando()"
+                  class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
+            Guardar
+          </button>
+          <button type="button" (click)="cancelarEdicion()"
+                  class="rounded-lg px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-100">
+            Cancelar
+          </button>
+        } @else {
+          <span class="min-w-0 flex-1 truncate text-sm font-medium text-slate-800">{{ c.nombre }}</span>
+          <button type="button" (click)="empezarEdicion(c)" title="Editar"
+                  class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+          <button type="button" (click)="eliminar(c)" title="Eliminar"
+                  class="rounded-lg p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        }
+      </li>
+    } @empty {
+      <li class="rounded-2xl bg-white p-8 text-center text-sm text-slate-500 shadow-sm">
+        Sin categorías de {{ tab() === 'Salida' ? 'gastos' : 'ingresos' }}. Agregá una arriba.
+      </li>
+    }
+  </ul>
+</section>
