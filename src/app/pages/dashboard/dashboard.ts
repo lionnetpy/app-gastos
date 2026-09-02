@@ -20,6 +20,8 @@ export class DashboardPage implements OnInit {
 
   protected saldoPositivo = computed(() => (this.resumen()?.saldoActual ?? 0) >= 0);
   protected anteriorPositivo = computed(() => (this.resumen()?.saldoAnterior ?? 0) >= 0);
+  protected totalGastos = computed(() => this.desgloseSalida().reduce((a, c) => a + c.monto, 0));
+  protected totalIngresos = computed(() => this.desgloseEntrada().reduce((a, c) => a + c.monto, 0));
 
   async ngOnInit(): Promise<void> {
     try {

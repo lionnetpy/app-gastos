@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { CONFIG_PENDIENTE } from '../../core/config';
+import { Router } from '@angular/router';
+import { CONFIG_PENDIENTE, STORAGE_KEYS } from '../../core/config';
 import type { Usuario } from '../../core/models';
 import { AuthService } from '../../core/services/auth.service';
 import { DatosService } from '../../core/services/datos.service';
@@ -13,8 +14,10 @@ import { DatosService } from '../../core/services/datos.service';
 export class ConfigPage implements OnInit {
   private auth = inject(AuthService);
   private datos = inject(DatosService);
+  private router = inject(Router);
 
   protected usuario = toSignal(this.auth.usuario, { initialValue: null as Usuario | null });
+  protected authError = toSignal(this.auth.authError, { initialValue: '' });
   protected iniciandoSesion = signal(false);
   protected saldoInicial = signal('');
   protected guardandoSaldo = signal(false);
@@ -24,6 +27,17 @@ export class ConfigPage implements OnInit {
   private usuarioRegistrado = false;
 
   async ngOnInit(): Promise<void> {
+    // Si venimos de un login por redirección, la app vuelve sola a esta página.
+    if (sessionStorage.getItem(STORAGE_KEYS.loginPendiente)) {
+      sessionStorage.removeItem(STORAGE_KEYS.loginPendiente);
+      const usuario = this.usuario();
+      if (usuario) {
+        await this.inicializarParaUsuario(usuario);
+        this.router.navigate(['/']);
+        return;
+      }
+    }
+
     const usuario = this.usuario();
     if (usuario && !this.usuarioRegistrado) {
       await this.inicializarParaUsuario(usuario);
@@ -43,9 +57,19 @@ export class ConfigPage implements OnInit {
 
   async iniciarSesion(): Promise<void> {
     this.iniciandoSesion.set(true);
+    this.error.set('');
+    sessionStorage.setItem(STORAGE_KEYS.loginPendiente, '1');
     try {
-      await this.auth.iniciarSesion();
-      // con flujo de redirección, la app vuelve sola; el estado se refleja al regresar
+      const sesionActiva = await this.auth.iniciarSesion();
+      const usuario = this.usuario();
+      if (sesionActiva && usuario) {
+        await this.inicializarParaUsuario(usuario);
+        this.router.navigate(['/']);
+      }
+    } catch (e) {
+      sessionStorage.removeItem(STORAGE_KEYS.loginPendiente);
+      const msg = e instanceof Error ? e.message : 'No se pudo iniciar sesión con Google.';
+      this.error.set(msg);
     } finally {
       this.iniciandoSesion.set(false);
     }

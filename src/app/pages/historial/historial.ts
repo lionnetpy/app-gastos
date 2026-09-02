@@ -35,6 +35,16 @@ export class HistorialPage implements OnInit {
     this.categorias().filter((c) => this.filtroTipo() === 'Todos' || c.tipo === this.filtroTipo()),
   );
 
+  protected totales = computed(() => {
+    let gastos = 0;
+    let ingresos = 0;
+    for (const m of this.movimientosFiltrados()) {
+      if (m.tipo === 'Salida') gastos += m.monto;
+      else ingresos += m.monto;
+    }
+    return { gastos, ingresos, balance: ingresos - gastos };
+  });
+
   async ngOnInit(): Promise<void> {
     try {
       const [movimientos, categorias] = await Promise.all([

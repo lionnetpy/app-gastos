@@ -1,30 +1,30 @@
-<section class="space-y-4">
+<section class="pagina space-y-5">
   <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-slate-900">Historial</h1>
-    <a routerLink="/nuevo" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+    <div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Historial</h1>
+      <p class="mt-0.5 text-sm text-slate-500">Tus movimientos, filtrables por mes, tipo y categoría.</p>
+    </div>
+    <a routerLink="/nuevo" class="btn-primary px-4 py-2.5 text-sm">
       + Nuevo
     </a>
   </div>
 
-  <div class="grid gap-3 rounded-2xl bg-white p-4 shadow-sm sm:grid-cols-3">
+  <div class="card grid gap-3 p-4 sm:grid-cols-3 sm:gap-4">
     <div>
-      <label class="mb-1 block text-xs font-medium text-slate-500" for="filtroMes">Mes</label>
-      <input id="filtroMes" type="month" [(ngModel)]="filtroMes"
-             class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500" />
+      <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500" for="filtroMes">Mes</label>
+      <input id="filtroMes" type="month" [(ngModel)]="filtroMes" class="campo" />
     </div>
     <div>
-      <label class="mb-1 block text-xs font-medium text-slate-500" for="filtroTipo">Tipo</label>
-      <select id="filtroTipo" [(ngModel)]="filtroTipo"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500">
+      <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500" for="filtroTipo">Tipo</label>
+      <select id="filtroTipo" [(ngModel)]="filtroTipo" class="campo">
         <option value="Todos">Todos</option>
         <option value="Salida">Gastos</option>
         <option value="Entrada">Ingresos</option>
       </select>
     </div>
     <div>
-      <label class="mb-1 block text-xs font-medium text-slate-500" for="filtroCategoria">Categoría</label>
-      <select id="filtroCategoria" [(ngModel)]="filtroCategoria"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500">
+      <label class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500" for="filtroCategoria">Categoría</label>
+      <select id="filtroCategoria" [(ngModel)]="filtroCategoria" class="campo">
         <option value="Todas">Todas</option>
         @for (c of categoriasFiltradas(); track c.id) {
           <option [value]="c.nombre">{{ c.nombre }}</option>
@@ -34,41 +34,60 @@
   </div>
 
   @if (error()) {
-    <p class="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">{{ error() }}</p>
+    <p class="card bg-rose-50 p-4 text-sm font-medium text-rose-700">{{ error() }}</p>
   }
 
   @if (cargando()) {
-    <div class="rounded-2xl bg-white p-10 text-center text-slate-500 shadow-sm">Cargando…</div>
-  } @else if (movimientosFiltrados().length === 0) {
-    <div class="rounded-2xl bg-white p-10 text-center text-slate-500 shadow-sm">
-      No hay movimientos para estos filtros.
+    <div class="card space-y-3 p-5">
+      <div class="h-10 animate-pulse rounded-lg bg-slate-100"></div>
+      <div class="h-10 animate-pulse rounded-lg bg-slate-100"></div>
+      <div class="h-10 animate-pulse rounded-lg bg-slate-100"></div>
     </div>
-  } @else {
-    <ul class="space-y-2">
+  } @else if (movimientosFiltrados().length > 0) {
+    <div class="card grid grid-cols-3 divide-x divide-slate-100 p-4 text-center">
+      <div>
+        <p class="text-xs font-semibold text-slate-500">Gastos</p>
+        <p class="mt-0.5 text-lg font-extrabold tabular-nums text-rose-600">{{ formatearMonto(totales().gastos) }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-500">Ingresos</p>
+        <p class="mt-0.5 text-lg font-extrabold tabular-nums text-emerald-600">{{ formatearMonto(totales().ingresos) }}</p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-500">Balance</p>
+        <p class="mt-0.5 text-lg font-extrabold tabular-nums"
+           [class.text-emerald-600]="totales().balance >= 0"
+           [class.text-rose-600]="totales().balance < 0">
+          {{ formatearMonto(totales().balance) }}
+        </p>
+      </div>
+    </div>
+
+    <ul class="card divide-y divide-slate-100">
       @for (m of movimientosFiltrados(); track m.id) {
-        <li class="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm">
+        <li class="flex items-center gap-3 p-4 transition hover:bg-slate-50">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-extrabold"
+                [class.bg-rose-100]="m.tipo === 'Salida'"
+                [class.text-rose-600]="m.tipo === 'Salida'"
+                [class.bg-emerald-100]="m.tipo === 'Entrada'"
+                [class.text-emerald-600]="m.tipo === 'Entrada'">
+            {{ m.categoria.charAt(0) }}
+          </span>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
-              <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                    [class.bg-rose-100]="m.tipo === 'Salida'"
-                    [class.text-rose-700]="m.tipo === 'Salida'"
-                    [class.bg-emerald-100]="m.tipo === 'Entrada'"
-                    [class.text-emerald-700]="m.tipo === 'Entrada'">
-                {{ m.tipo === 'Salida' ? 'Gasto' : 'Ingreso' }}
-              </span>
-              <span class="truncate text-sm font-medium text-slate-800">{{ m.categoria }}</span>
-              <span class="text-xs text-slate-400">{{ m.fecha }}</span>
+              <span class="truncate text-sm font-bold text-slate-800">{{ m.categoria }}</span>
+              <span class="shrink-0 text-[11px] font-semibold text-slate-400">{{ m.fecha }}</span>
             </div>
             @if (m.descripcion) {
-              <p class="mt-1 truncate text-sm text-slate-500">{{ m.descripcion }}</p>
+              <p class="mt-0.5 truncate text-xs text-slate-500">{{ m.descripcion }}</p>
             }
           </div>
-          <span class="text-sm font-bold"
+          <span class="text-sm font-extrabold tabular-nums"
                 [class.text-rose-600]="m.tipo === 'Salida'"
                 [class.text-emerald-600]="m.tipo === 'Entrada'">
             {{ m.tipo === 'Salida' ? '−' : '+' }}{{ formatearMonto(m.monto) }}
           </span>
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-0.5">
             <a [routerLink]="['/nuevo']" [queryParams]="{ id: m.id }" title="Editar"
                class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -85,5 +104,15 @@
         </li>
       }
     </ul>
+  } @else {
+    <div class="card flex flex-col items-center gap-3 p-10 text-center">
+      <div class="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      </div>
+      <p class="text-sm font-medium text-slate-500">No hay movimientos para estos filtros.</p>
+      <a routerLink="/nuevo" class="btn-primary px-4 py-2 text-sm">Agregar uno</a>
+    </div>
   }
 </section>

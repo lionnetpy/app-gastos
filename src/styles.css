@@ -1,1 +1,221 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Lato", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+@layer components {
+  body {
+    background-color: var(--color-slate-100);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Tarjeta base (patrón DENTSYS) ─────────────────────────── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--color-slate-200);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.04), 0 4px 8px rgb(0 0 0 / 0.04);
+  }
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.08);
+  }
+
+  /* ── Chip de icono para estadísticas ───────────────────────── */
+  .icon-chip {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.55rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .icon-chip svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ── Botones ───────────────────────────────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.65rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    background-image: linear-gradient(135deg, var(--color-emerald-500), var(--color-teal-500));
+    box-shadow: 0 8px 20px rgb(16 185 129 / 0.3);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .btn-primary:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.1rem;
+    border-radius: 0.65rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-slate-600);
+    background: #fff;
+    border: 1px solid var(--color-slate-200);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--color-slate-50);
+    border-color: var(--color-slate-300);
+  }
+  .btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.65rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    background-image: linear-gradient(135deg, var(--color-rose-500), var(--color-rose-600));
+    box-shadow: 0 8px 20px rgb(244 63 94 / 0.3);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .btn-danger:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+  .btn-danger:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  .btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ── Animación de entrada de página ────────────────────────── */
+  .pagina {
+    animation: fadeInPage 0.4s ease-out;
+  }
+  @keyframes fadeInPage {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── Navegación inferior: píldora activa ───────────────────── */
+  .mobile-nav a.router-link-active {
+    color: var(--color-emerald-600);
+  }
+  .mobile-nav a.router-link-active span.ico:not(.fab) {
+    background-color: var(--color-emerald-50);
+  }
+
+  /* ── Inputs y selects con estilo consistente ───────────────── */
+  .campo {
+    width: 100%;
+    height: 2.625rem;
+    border-radius: 0.65rem;
+    border: 1px solid var(--color-slate-300);
+    background-color: #fff;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-slate-800);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .campo::placeholder {
+    color: var(--color-slate-400);
+  }
+
+  .campo:hover {
+    border-color: var(--color-slate-400);
+  }
+
+  .campo:focus {
+    border-color: var(--color-emerald-500);
+    box-shadow: 0 0 0 3px var(--color-emerald-100);
+  }
+
+  .campo:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-color: var(--color-slate-100);
+  }
+
+  /* Selects: flecha SVG personalizada, sin la flecha nativa */
+  select.campo {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+  }
+
+  select.campo:hover {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23334155' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  }
+
+  /* Calendarios: icono propio y consistente con la paleta */
+  input[type="date"].campo::-webkit-calendar-picker-indicator,
+  input[type="month"].campo::-webkit-calendar-picker-indicator {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+  }
+
+  input[type="date"].campo::-webkit-calendar-picker-indicator:hover,
+  input[type="month"].campo::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  /* En móvil, tamaño de fuente mínimo para evitar el zoom automático de iOS */
+  @media (max-width: 767px) {
+    .campo {
+      font-size: 1rem;
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { environment } from '../../environments/environment';
 
 export const STORAGE_KEYS = {
   currency: 'app_gastos.currency',
+  loginPendiente: 'app_gastos.login_pendiente',
 } as const;
 
 export const CATEGORIAS_PREDETERMINADAS = {
