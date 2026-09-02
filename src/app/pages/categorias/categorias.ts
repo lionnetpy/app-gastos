@@ -1,26 +1,23 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { STORAGE_KEYS } from '../../core/config';
 import type { Categoria, TipoMovimiento } from '../../core/models';
-import { GoogleSheetsService } from '../../core/services/google-sheets.service';
+import { DatosService } from '../../core/services/datos.service';
 
 @Component({
   imports: [FormsModule],
   templateUrl: './categorias.html',
 })
 export class CategoriasPage implements OnInit {
-  private sheets = inject(GoogleSheetsService);
-  private hojaId = localStorage.getItem(STORAGE_KEYS.hojaId) ?? '';
+  private datos = inject(DatosService);
 
   protected tab = signal<TipoMovimiento>('Salida');
   protected categoriasSalida = signal<Categoria[]>([]);
   protected categoriasEntrada = signal<Categoria[]>([]);
   protected nuevoNombre = signal('');
-  protected editandoRow = signal<number | null>(null);
+  protected editandoId = signal<string | null>(null);
   protected editandoNombre = signal('');
   protected trabajando = signal(false);
   protected error = signal('');
-  protected exito = signal('');
 
   protected categoriasActuales = computed(() =>
     this.tab() === 'Salida' ? this.categoriasSalida() : this.categoriasEntrada(),
@@ -32,7 +29,7 @@ export class CategoriasPage implements OnInit {
 
   private async recargar(): Promise<void> {
     try {
-      const todas = await this.sheets.getCategorias(this.hojaId);
+      const todas = await this.datos.getCategorias();
       this.categoriasSalida.set(todas.filter((c) => c.tipo === 'Salida'));
       this.categoriasEntrada.set(todas.filter((c) => c.tipo === 'Entrada'));
     } catch (e) {
@@ -49,9 +46,8 @@ export class CategoriasPage implements OnInit {
     }
     this.trabajando.set(true);
     this.error.set('');
-    this.exito.set('');
     try {
-      await this.sheets.agregarCategoria(this.hojaId, this.tab(), nombre);
+      await this.datos.agregarCategoria(this.tab(), nombre);
       this.nuevoNombre.set('');
       await this.recargar();
     } catch (e) {
@@ -62,7 +58,7 @@ export class CategoriasPage implements OnInit {
   }
 
   empezarEdicion(c: Categoria): void {
-    this.editandoRow.set(c.rowNumber);
+    this.editandoId.set(c.id);
     this.editandoNombre.set(c.nombre);
   }
 
@@ -75,8 +71,8 @@ export class CategoriasPage implements OnInit {
     this.trabajando.set(true);
     this.error.set('');
     try {
-      await this.sheets.actualizarCategoria(this.hojaId, c.rowNumber, nombre);
-      this.editandoRow.set(null);
+      await this.datos.actualizarCategoria(c.id, nombre);
+      this.editandoId.set(null);
       await this.recargar();
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'No se pudo actualizar la categoría.');
@@ -86,7 +82,7 @@ export class CategoriasPage implements OnInit {
   }
 
   cancelarEdicion(): void {
-    this.editandoRow.set(null);
+    this.editandoId.set(null);
   }
 
   async eliminar(c: Categoria): Promise<void> {
@@ -94,7 +90,7 @@ export class CategoriasPage implements OnInit {
     this.trabajando.set(true);
     this.error.set('');
     try {
-      await this.sheets.eliminarCategoria(this.hojaId, c.rowNumber);
+      await this.datos.eliminarCategoria(c.id);
       await this.recargar();
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'No se pudo eliminar la categoría.');

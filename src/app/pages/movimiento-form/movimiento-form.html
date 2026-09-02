@@ -39,7 +39,7 @@
         <select id="categoria" formControlName="categoria"
                 class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100">
           <option value="" disabled>Elegí una categoría</option>
-          @for (c of categoriasFiltradas(); track c.rowNumber) {
+          @for (c of categoriasFiltradas(); track c.id) {
             <option [value]="c.nombre">{{ c.nombre }}</option>
           }
         </select>

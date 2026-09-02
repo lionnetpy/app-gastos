@@ -1,8 +1,13 @@
 export const environment = {
-  production: false,
-  // Configuración de Google Cloud Console (ver README.md, sección "Configuración en Google Cloud").
-  // 1) OAuth Client ID (tipo "Web application") del proyecto en Google Cloud.
-  googleClientId: '576360935122-qhdql5nq6s9ld0l4la0iamvt5r2cs0oq.apps.googleusercontent.com',
-  // 2) API Key creada en Google Cloud (necesaria para Google Picker).
-  googleApiKey: 'AIzaSyAdyU6tBUkGwvypDjNX5p3RMVCEfAFvV7k',
+  production: true,
+  // Configuración de Firebase (ver README.md, sección "Configuración de Firebase").
+  // Firebase Console → Configuración del proyecto → Tus apps → App web (</>) → Copiar configuración.
+  firebase: {
+    apiKey: 'AIzaSyBmmktOiCGY_Ioe79T54E5tSO4dP8DJv50',
+    authDomain: 'gastos-jels.firebaseapp.com',
+    projectId: 'gastos-jels',
+    storageBucket: 'gastos-jels.firebasestorage.app',
+    messagingSenderId: '445045156382',
+    appId: '1:445045156382:web:71bce47e55f02037df5c0f',
+  },
 };

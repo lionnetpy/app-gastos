@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import type { Usuario } from './core/models';
-import { GoogleAuthService } from './core/services/google-auth.service';
+import { AuthService } from './core/services/auth.service';
 
 interface NavItem {
   label: string;
@@ -16,7 +16,7 @@ interface NavItem {
   templateUrl: './app.html',
 })
 export class App {
-  private auth = inject(GoogleAuthService);
+  private auth = inject(AuthService);
 
   protected usuario = toSignal(this.auth.usuario, { initialValue: null as Usuario | null });
 

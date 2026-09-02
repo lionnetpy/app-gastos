@@ -2,25 +2,25 @@
   <div>
     <h1 class="text-2xl font-bold text-slate-900">Configuración</h1>
     <p class="text-sm text-slate-500">
-      Iniciá sesión con tu cuenta de Google y vinculá tu hoja de cálculo. Todo se guarda en tu propia hoja,
-      sin servidores propios.
+      Iniciá sesión con tu cuenta de Google y empezá a registrar tus gastos. Tus datos se guardan en
+      Firebase Cloud (gratis, solo tuyos) y se sincronizan entre todos tus dispositivos.
     </p>
   </div>
 
   @if (configPendiente) {
     <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 shadow-sm">
-      <p class="font-semibold">Falta la configuración de Google</p>
+      <p class="font-semibold">Falta la configuración de Firebase</p>
       <p class="mt-1">
-        Para poder iniciar sesión, configurá tu proyecto en Google Cloud una sola vez y pegá tus
-        credenciales en <code class="rounded bg-amber-100 px-1">src/environments/environment.ts</code>:
+        Para poder iniciar sesión, creá tu proyecto gratuito en Firebase y pegá sus datos en
+        <code class="rounded bg-amber-100 px-1">src/environments/environment.ts</code>:
       </p>
       <ol class="mt-2 list-decimal space-y-1 pl-5">
-        <li>Creá un proyecto en Google Cloud Console y habilitá <b>Sheets API</b> y <b>Drive API</b>.</li>
-        <li>Creá un <b>OAuth Client ID</b> tipo "Web application" (orígenes: localhost:4200 y tu dominio Netlify).</li>
-        <li>Creá una <b>API Key</b> y pegá ambos valores en <code class="rounded bg-amber-100 px-1">environment.ts</code>.</li>
-        <li>En la <b>pantalla de consentimiento</b>: completá el correo de asistencia y agregá tu correo en <b>Usuarios de prueba</b> (si está en estado "En prueba"; si no, verás el error 403 access_denied).</li>
+        <li>Entrá a <b>console.firebase.google.com</b> y creá un proyecto (plan gratuito Spark, sin tarjeta).</li>
+        <li>Activa <b>Authentication → Google</b> y creá <b>Firestore Database</b>.</li>
+        <li>En Configuración del proyecto → Tus apps → App web (&lt;/&gt;), copiá los datos de configuración.</li>
+        <li>Pegalos en <code class="rounded bg-amber-100 px-1">environment.ts</code> y publicá las reglas de seguridad del archivo <code class="rounded bg-amber-100 px-1">firestore.rules</code>.</li>
       </ol>
-      <p class="mt-2">Detalle completo en el README.md (sección "Configuración en Google Cloud").</p>
+      <p class="mt-2">Detalle completo en el README.md (sección "Configuración de Firebase").</p>
     </div>
   }
 
@@ -32,7 +32,7 @@
   }
 
   <div class="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 class="mb-3 font-semibold text-slate-900">1 · Tu cuenta de Google</h2>
+    <h2 class="mb-3 font-semibold text-slate-900">Tu cuenta de Google</h2>
 
     @if (usuario(); as u) {
       <div class="flex items-center gap-3">
@@ -61,59 +61,37 @@
           <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0124 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
           <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
         </svg>
-        {{ iniciandoSesion() ? 'Conectando con Google…' : 'Iniciar sesión con Google' }}
+        {{ iniciandoSesion() ? 'Redirigiendo a Google…' : 'Iniciar sesión con Google' }}
       </button>
       <p class="mt-3 text-xs text-slate-500">
-        Al iniciar sesión se pedirán permisos para leer/escribir tus hojas de cálculo y para abrir el selector
-        de hojas de Google Drive. Solo se guarda tu correo en la pestaña «Usuarios» de tu propia hoja.
+        Firebase maneja la autenticación con credenciales verificadas de Google: no hay pantallas de
+        verificación ni configuraciones por usuario. Tus datos quedan aislados con reglas de seguridad
+        por cuenta.
       </p>
     }
   </div>
 
-  <div class="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 class="mb-3 font-semibold text-slate-900">2 · Tu hoja de Google Sheets</h2>
-
-    @if (!usuario()) {
-      <p class="text-sm text-slate-500">Primero iniciá sesión con Google.</p>
-    } @else if (hoja(); as h) {
-      <div class="flex items-center gap-3">
-        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
-        <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-semibold text-slate-900">{{ h.nombre }}</p>
-          <p class="text-xs text-slate-500">Vinculada correctamente</p>
-        </div>
-        <button type="button" (click)="irAlInicio()"
-                class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-          Ir al inicio
-        </button>
-      </div>
-      <div class="mt-4 flex gap-2">
-        <button type="button" (click)="vincularHoja()" [disabled]="vinculando() || configPendiente"
-                class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-60">
-          {{ vinculando() ? 'Abriendo selector…' : 'Cambiar hoja' }}
-        </button>
-        <button type="button" (click)="desvincular()"
-                class="flex-1 rounded-xl border border-rose-200 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50">
-          Desvincular
-        </button>
-      </div>
-    } @else {
-      <button type="button" (click)="vincularHoja()" [disabled]="vinculando() || configPendiente"
-              class="flex w-full items-center justify-center gap-3 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 010 5.656l-3 3a4 4 0 01-5.656-5.656l1.5-1.5M10.172 13.828a4 4 0 010-5.656l3-3a4 4 0 115.656 5.656l-1.5 1.5" />
-        </svg>
-        {{ vinculando() ? 'Abriendo selector…' : 'Vincular hoja de Google Sheets' }}
-      </button>
-      <p class="mt-3 text-xs text-slate-500">
-        Se abre el selector de Google Drive: elegí una hoja de cálculo nueva o existente. Si la hoja está
-        vacía, la app crea automáticamente las pestañas «Movimientos», «Categorias», «Usuarios» y «Config»
-        y registra tu correo.
+  @if (usuario()) {
+    <div class="rounded-2xl bg-white p-5 shadow-sm">
+      <h2 class="mb-3 font-semibold text-slate-900">Saldo inicial</h2>
+      <p class="mb-3 text-sm text-slate-500">
+        Si ya tenés dinero ahorrado, cargá el saldo con el que arrancás a medir. Se suma al saldo de
+        meses anteriores.
       </p>
-    }
-  </div>
+      <div class="flex gap-2">
+        <input type="number" step="0.01" [(ngModel)]="saldoInicial" name="saldoInicial"
+               placeholder="0,00"
+               class="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+        <button type="button" (click)="guardarSaldoInicial()" [disabled]="guardandoSaldo()"
+                class="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
+          {{ guardandoSaldo() ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <p class="text-xs text-slate-400">
+    App sin backend propio. Almacenamiento: Firebase Firestore (plan gratuito). Podés exportar tus
+    datos desde la consola de Firebase cuando quieras.
+  </p>
 </section>

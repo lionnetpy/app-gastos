@@ -1,4 +1,4 @@
-<section class="mx-auto max-w-xl space-y-4">
+﻿<section class="mx-auto max-w-xl space-y-4">
   <div>
     <h1 class="text-2xl font-bold text-slate-900">Categorías</h1>
     <p class="text-sm text-slate-500">Personalizá las categorías de tus gastos e ingresos.</p>
@@ -38,9 +38,9 @@
   </form>
 
   <ul class="space-y-2">
-    @for (c of categoriasActuales(); track c.rowNumber) {
+    @for (c of categoriasActuales(); track c.id) {
       <li class="flex items-center gap-2 rounded-2xl bg-white p-3 shadow-sm">
-        @if (editandoRow() === c.rowNumber) {
+        @if (editandoId() === c.id) {
           <input type="text" [(ngModel)]="editandoNombre" name="editandoNombre" maxlength="40"
                  class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500" />
           <button type="button" (click)="guardarEdicion(c)" [disabled]="trabajando()"

@@ -2,10 +2,9 @@ import { ChangeDetectorRef, Component, OnInit, computed, inject, signal } from '
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { STORAGE_KEYS } from '../../core/config';
-import type { Categoria, TipoMovimiento } from '../../core/models';
-import { GoogleAuthService } from '../../core/services/google-auth.service';
-import { GoogleSheetsService } from '../../core/services/google-sheets.service';
+import type { Categoria, Movimiento, TipoMovimiento } from '../../core/models';
+import { AuthService } from '../../core/services/auth.service';
+import { DatosService } from '../../core/services/datos.service';
 import { hoyISO } from '../../shared/format';
 
 @Component({
@@ -15,10 +14,9 @@ import { hoyISO } from '../../shared/format';
 export class MovimientoFormPage implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private sheets = inject(GoogleSheetsService);
-  private auth = inject(GoogleAuthService);
+  private datos = inject(DatosService);
+  private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
-  private hojaId = localStorage.getItem(STORAGE_KEYS.hojaId) ?? '';
 
   protected form = new FormGroup({
     tipo: new FormControl<TipoMovimiento>('Salida', Validators.required),
@@ -42,21 +40,21 @@ export class MovimientoFormPage implements OnInit {
     this.categorias().filter((c) => c.tipo === this.tipoSeleccionado()),
   );
 
-  private filaEdicion: number | null = null;
+  private idEdicion: string | null = null;
 
   async ngOnInit(): Promise<void> {
     const tipo = this.route.snapshot.queryParamMap.get('tipo');
     if (tipo === 'Entrada' || tipo === 'Salida') {
       this.form.patchValue({ tipo });
     }
-    const fila = this.route.snapshot.queryParamMap.get('fila');
+    const id = this.route.snapshot.queryParamMap.get('id');
     try {
-      this.categorias.set(await this.sheets.getCategorias(this.hojaId));
-      if (fila !== null) {
-        const movimientos = await this.sheets.getMovimientos(this.hojaId);
-        const movimiento = movimientos[Number(fila)];
+      this.categorias.set(await this.datos.getCategorias());
+      if (id) {
+        const movimientos = await this.datos.getMovimientos();
+        const movimiento = movimientos.find((m) => m.id === id);
         if (movimiento) {
-          this.filaEdicion = Number(fila);
+          this.idEdicion = id;
           this.esEdicion.set(true);
           this.form.patchValue({
             tipo: movimiento.tipo,
@@ -90,7 +88,7 @@ export class MovimientoFormPage implements OnInit {
       return;
     }
     const v = this.form.value;
-    const movimiento = {
+    const movimiento: Omit<Movimiento, 'id'> = {
       fecha: v.fecha ?? hoyISO(),
       usuario: this.auth.usuarioActual?.email ?? '',
       tipo: (v.tipo ?? 'Salida') as TipoMovimiento,
@@ -102,10 +100,10 @@ export class MovimientoFormPage implements OnInit {
     this.guardando.set(true);
     this.error.set('');
     try {
-      if (this.filaEdicion !== null) {
-        await this.sheets.actualizarMovimiento(this.hojaId, this.filaEdicion, movimiento);
+      if (this.idEdicion) {
+        await this.datos.actualizarMovimiento(this.idEdicion, movimiento);
       } else {
-        await this.sheets.agregarMovimiento(this.hojaId, movimiento);
+        await this.datos.agregarMovimiento(movimiento);
       }
       this.exito.set(true);
       this.cdr.markForCheck();

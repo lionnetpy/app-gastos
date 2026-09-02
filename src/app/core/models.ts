@@ -1,4 +1,5 @@
 export interface Usuario {
+  uid: string;
   email: string;
   nombre: string;
   foto: string;
@@ -7,7 +8,7 @@ export interface Usuario {
 export type TipoMovimiento = 'Entrada' | 'Salida';
 
 export interface Movimiento {
-  rowNumber: number;
+  id: string;
   fecha: string;
   usuario: string;
   tipo: TipoMovimiento;
@@ -17,7 +18,7 @@ export interface Movimiento {
 }
 
 export interface Categoria {
-  rowNumber: number;
+  id: string;
   tipo: TipoMovimiento;
   nombre: string;
 }
@@ -33,9 +34,4 @@ export interface DesgloseCategoria {
   categoria: string;
   monto: number;
   porcentaje: number;
-}
-
-export interface HojaVinculada {
-  id: string;
-  nombre: string;
 }

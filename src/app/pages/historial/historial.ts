@@ -1,9 +1,8 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { STORAGE_KEYS } from '../../core/config';
 import type { Categoria, Movimiento, TipoMovimiento } from '../../core/models';
-import { GoogleSheetsService } from '../../core/services/google-sheets.service';
+import { DatosService } from '../../core/services/datos.service';
 import { formatearMonto, hoyMes } from '../../shared/format';
 
 type FiltroTipo = 'Todos' | TipoMovimiento;
@@ -13,8 +12,7 @@ type FiltroTipo = 'Todos' | TipoMovimiento;
   templateUrl: './historial.html',
 })
 export class HistorialPage implements OnInit {
-  private sheets = inject(GoogleSheetsService);
-  private hojaId = localStorage.getItem(STORAGE_KEYS.hojaId) ?? '';
+  private datos = inject(DatosService);
 
   protected movimientos = signal<Movimiento[]>([]);
   protected categorias = signal<Categoria[]>([]);
@@ -30,7 +28,7 @@ export class HistorialPage implements OnInit {
       .filter((m) => this.filtroTipo() === 'Todos' || m.tipo === this.filtroTipo())
       .filter((m) => this.filtroCategoria() === 'Todas' || m.categoria === this.filtroCategoria())
       .filter((m) => !this.filtroMes() || m.fecha.startsWith(this.filtroMes()))
-      .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.rowNumber - a.rowNumber),
+      .sort((a, b) => b.fecha.localeCompare(a.fecha) || a.id.localeCompare(b.id)),
   );
 
   protected categoriasFiltradas = computed(() =>
@@ -40,8 +38,8 @@ export class HistorialPage implements OnInit {
   async ngOnInit(): Promise<void> {
     try {
       const [movimientos, categorias] = await Promise.all([
-        this.sheets.getMovimientos(this.hojaId),
-        this.sheets.getCategorias(this.hojaId),
+        this.datos.getMovimientos(),
+        this.datos.getCategorias(),
       ]);
       this.movimientos.set(movimientos);
       this.categorias.set(categorias);
@@ -59,8 +57,8 @@ export class HistorialPage implements OnInit {
     this.borrando.set(true);
     this.error.set('');
     try {
-      await this.sheets.eliminarMovimiento(this.hojaId, m.rowNumber);
-      this.movimientos.set(await this.sheets.getMovimientos(this.hojaId));
+      await this.datos.eliminarMovimiento(m.id);
+      this.movimientos.set(await this.datos.getMovimientos());
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'No se pudo eliminar el movimiento.');
     } finally {

@@ -1,8 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { STORAGE_KEYS } from '../../core/config';
 import type { DesgloseCategoria, ResumenMes } from '../../core/models';
-import { GoogleSheetsService } from '../../core/services/google-sheets.service';
+import { DatosService } from '../../core/services/datos.service';
 import { formatearMonto, nombreMes } from '../../shared/format';
 
 @Component({
@@ -10,8 +9,7 @@ import { formatearMonto, nombreMes } from '../../shared/format';
   templateUrl: './dashboard.html',
 })
 export class DashboardPage implements OnInit {
-  private sheets = inject(GoogleSheetsService);
-  private hojaId = localStorage.getItem(STORAGE_KEYS.hojaId) ?? '';
+  private datos = inject(DatosService);
 
   protected resumen = signal<ResumenMes | null>(null);
   protected desgloseSalida = signal<DesgloseCategoria[]>([]);
@@ -25,15 +23,14 @@ export class DashboardPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      const [movimientos, config] = await Promise.all([
-        this.sheets.getMovimientos(this.hojaId),
-        this.sheets.getConfig(this.hojaId),
+      const [movimientos, saldoInicial] = await Promise.all([
+        this.datos.getMovimientos(),
+        this.datos.getSaldoInicial(),
       ]);
-      const saldoInicial = Number(config.get('Saldo inicial') ?? 0) || 0;
       const ahora = new Date();
-      this.resumen.set(this.sheets.calcularResumen(movimientos, saldoInicial, ahora));
-      this.desgloseSalida.set(this.sheets.desglosePorCategoria(movimientos, 'Salida', ahora));
-      this.desgloseEntrada.set(this.sheets.desglosePorCategoria(movimientos, 'Entrada', ahora));
+      this.resumen.set(this.datos.calcularResumen(movimientos, saldoInicial, ahora));
+      this.desgloseSalida.set(this.datos.desglosePorCategoria(movimientos, 'Salida', ahora));
+      this.desgloseEntrada.set(this.datos.desglosePorCategoria(movimientos, 'Entrada', ahora));
       this.mesLabel.set(`${nombreMes(ahora.getMonth())} ${ahora.getFullYear()}`);
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'No se pudieron cargar los datos.');

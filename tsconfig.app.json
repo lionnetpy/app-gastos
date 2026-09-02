@@ -3,7 +3,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["google.accounts", "google.picker"]
+    "types": []
   },
   "include": [
     "src/**/*.ts"

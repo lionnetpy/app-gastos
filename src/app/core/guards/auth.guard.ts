@@ -1,15 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { STORAGE_KEYS } from '../config';
-import { GoogleAuthService } from '../services/google-auth.service';
+import { AuthService } from '../services/auth.service';
 
-/** Requiere sesión de Google iniciada y una hoja vinculada; si no, redirige a /config. */
+/** Requiere sesión de Google iniciada; si no, redirige a /config. */
 export const authGuard: CanActivateFn = () => {
-  const auth = inject(GoogleAuthService);
+  const auth = inject(AuthService);
   const router = inject(Router);
-  const hojaId = localStorage.getItem(STORAGE_KEYS.hojaId);
 
-  if (auth.estaLogueado && hojaId) {
+  if (auth.estaLogueado) {
     return true;
   }
   return router.createUrlTree(['/config']);
